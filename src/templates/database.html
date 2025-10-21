@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base de Datos - Abejitas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #fff3cd, #ffeb99);
+            min-height: 100vh;
+            color: #333;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .header h1 {
+            color: #ffb000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: white;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            color: #ffb000;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            background-color: #ffb000;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #e6a000;
+        }
+        
+        .data-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #ffb000;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        
+        pre {
+            background-color: #f1f3f4;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-links a {
+            color: #ffb000;
+            text-decoration: none;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid #ffb000;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: #ffb000;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐝 Base de Datos Abejitas 📊</h1>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/">🏠 Inicio</a>
+            <a href="/home">🐝 Home</a>
+            <a href="http://localhost:8081" target="_blank">🗄️ Mongo Express</a>
+        </div>
+        
+        <div class="section">
+            <h2>🔍 Prueba de Conexión</h2>
+            <button class="btn" onclick="testConnection()">Probar Conexión a MongoDB</button>
+            <div id="connection-result" class="data-container" style="display: none;"></div>
+        </div>
+        
+        <div class="section">
+            <h2>👥 Usuarios</h2>
+            <button class="btn" onclick="loadUsuarios()">Cargar Usuarios</button>
+            <div id="usuarios-data" class="data-container" style="display: none;"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🍯 Productos</h2>
+            <button class="btn" onclick="loadProductos()">Cargar Productos</button>
+            <div id="productos-data" class="data-container" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loading">🔄 Probando conexión...</div>';
+            
+            try {
+                const response = await fetch('/api/test-db');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ ${data.message}</h4>
+                            <p><strong>Base de datos:</strong> ${data.database}</p>
+                            <p><strong>Usuarios:</strong> ${data.collections.usuarios}</p>
+                            <p><strong>Productos:</strong> ${data.collections.productos}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function loadUsuarios() {
+            const dataDiv = document.getElementById('usuarios-data');
+            dataDiv.style.display = 'block';
+            dataDiv.innerHTML = '<div class="loading">🔄 Cargando usuarios...</div>';
+            
+            try {
+                const response = await fetch('/api/usuarios');
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    let html = '<h4>👥 Lista de Usuarios:</h4>';
+                    data.forEach(usuario => {
+                        html += `
+                            <div style="border: 1px solid #ddd; padding: 1rem; margin: 0.5rem 0; border-radius: 5px;">
+                                <strong>🧑‍💼 ${usuario.nombre}</strong><br>
+                                <strong>Usuario:</strong> ${usuario.username}<br>
+                                <strong>Email:</strong> ${usuario.email}<br>
+                                <strong>Creado:</strong> ${new Date(usuario.created_at).toLocaleDateString()}
+                            </div>
+                        `;
+                    });
+                    dataDiv.innerHTML = html;
+                } else {
+                    dataDiv.innerHTML = `<div class="error">❌ ${data.error}</div>`;
+                }
+            } catch (error) {
+                dataDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function loadProductos() {
+            const dataDiv = document.getElementById('productos-data');
+            dataDiv.style.display = 'block';
+            dataDiv.innerHTML = '<div class="loading">🔄 Cargando productos...</div>';
+            
+            try {
+                const response = await fetch('/api/productos');
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    let html = '<h4>🍯 Lista de Productos:</h4>';
+                    data.forEach(producto => {
+                        html += `
+                            <div style="border: 1px solid #ddd; padding: 1rem; margin: 0.5rem 0; border-radius: 5px;">
+                                <strong>📦 ${producto.nombre}</strong> - <span style="color: #28a745; font-weight: bold;">$${producto.precio}</span><br>
+                                <strong>Descripción:</strong> ${producto.descripcion}<br>
+                                <strong>Stock:</strong> ${producto.stock} unidades<br>
+                                <strong>Categoría:</strong> ${producto.categoria}
+                            </div>
+                        `;
+                    });
+                    dataDiv.innerHTML = html;
+                } else {
+                    dataDiv.innerHTML = `<div class="error">❌ ${data.error}</div>`;
+                }
+            } catch (error) {
+                dataDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
