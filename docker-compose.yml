@@ -8,7 +8,7 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
-      - MONGODB_URI=mongodb://mongodb:27017/abejitas_db
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/abejitas_db?authSource=admin
     volumes:
       - ./src:/app # Montaje de volumen para desarrollo en tiempo real
     restart: unless-stopped
