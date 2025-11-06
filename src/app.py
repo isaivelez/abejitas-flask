@@ -32,6 +32,10 @@ def home():
 def database():
     return render_template('database.html')
 
+@app.route("/agregar_registros")
+def agregar_registros():
+    return render_template('agregar_registros.html')
+
 @app.route("/api/usuarios")
 def get_usuarios():
     """Endpoint para obtener todos los usuarios"""
