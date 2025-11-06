@@ -333,7 +333,7 @@
             registroInfo.style.display = 'none';
             
             try {
-                const response = await fetch('http://localhost:8080/api/registros', {
+                const response = await fetch('/api/registros', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
