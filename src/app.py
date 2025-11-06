@@ -5,19 +5,14 @@ import uuid
 from bson import ObjectId
 from datetime import datetime
 
-# Create an instance of the Flask class
-# __name__ is a special Python variable that gets the name of the module
 app = Flask(__name__)
 
-# Configuración de MongoDB
-MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://admin:password123@localhost:27017/abejitas_db?authSource=admin')
+MONGODB_URI = os.getenv('MONGODB_URI')
 
 try:
-    # Conexión a MongoDB
     client = MongoClient(MONGODB_URI)
     db = client.abejitas_db
     
-    # Verificar conexión
     client.admin.command('ping')
     print("✅ Conexión exitosa a MongoDB!")
     
@@ -25,21 +20,16 @@ except Exception as e:
     print(f"❌ Error conectando a MongoDB: {e}")
     db = None
 
-# The route() decorator binds a URL path to a function
 @app.route("/")
 def login():
-    edad = 24
-    # Retorna el template de login
-    return render_template('login.html', edad=edad)
+    return render_template('login.html')
 
 @app.route("/home")
 def home():
-    # Retorna el template de home
     return render_template('home.html')
 
 @app.route("/database")
 def database():
-    # Retorna el template de database
     return render_template('database.html')
 
 @app.route("/api/usuarios")
@@ -150,4 +140,4 @@ def crear_registro():
         return jsonify({"error": f"Error interno del servidor: {str(e)}"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8080)
+    app.run(debug=True, host="0.0.0.0", port=8080, use_reloader=False)
